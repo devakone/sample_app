@@ -243,20 +243,24 @@ describe UsersController do
                                   :email => Factory.next(:email))
         end
       end
+      
       it "should be successful" do
         get :index
         response.should be_success
       end
+      
       it "should have the right title" do
         get :index
         response.should have_selector("title", :content => "All users")
       end
+      
       it "should have an element for each user" do
         get :index
         @users[0..2].each do |user|
         response.should have_selector("li", :content => user.name)
         end
       end
+      
       it "should paginate users" do
         get :index
         response.should have_selector("div.pagination")
@@ -266,7 +270,29 @@ describe UsersController do
         response.should have_selector("a", :href => "/users?page=2",
                                             :content => "Next")
       end
+      
+      it "should not have a delete link" do
+        get :index
+        response.should_not have_selector("a",:content => "delete")
+      end
+      
     end
+    
+    describe "as an admin user" do
+      
+      before(:each) do
+        admin = Factory(:user, :email => "admin@example.com", :admin => true)
+        test_sign_in(admin)
+      end
+      
+      it "should have a delete link" do
+         get :index
+          response.should have_selector("a",:content => "delete")
+      end
+      
+     
+    end
+    
   end
   
   describe "DELETE 'destroy'" do
@@ -304,12 +330,24 @@ describe UsersController do
         end.should change(User, :count).by(-1)
       end
       
+      it "should not destroy the admin" do
+        
+        lambda do
+          admin = Factory(:user, :email => "admin_undelete@example.com", :admin => true)
+          test_sign_in(admin)
+          delete :destroy, :id => admin
+        end.should_not change(User, :count)
+      end
+      
       it "should redirect to the users page" do
         delete :destroy, :id => @user
         response.should redirect_to(users_path)
       end
       
+  
+      
     end
+    
   end
   
   

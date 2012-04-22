@@ -5,8 +5,12 @@ class UsersController < ApplicationController
   before_filter :admin_user, :only => :destroy
   
   def new
+    if signed_in?
+      redirect_to(root_path)
+    end
     @title = "Sign up"
     @user = User.new
+    
   end
   
   def index
@@ -20,6 +24,9 @@ class UsersController < ApplicationController
   end
   
   def create
+    if signed_in?
+      redirect_to(root_path)
+    end
     @user = User.new(params[:user])
     if @user.save
       sign_in @user
@@ -49,6 +56,11 @@ class UsersController < ApplicationController
   end
   
   def destroy
+    puts "Current user id: #{current_user.id} and parameter id #{params[:id]}"
+    if params[:id] == current_user.id && current_user.admin?   
+        flash[:notice] = "You can not destroy yourself."
+        redirect_to users_path
+    end 
     User.find(params[:id]).destroy
     flash[:success] = "User destroyed."
     redirect_to users_path
