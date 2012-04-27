@@ -18,8 +18,9 @@ class UsersController < ApplicationController
     @users = User.paginate(:page => params[:page])
   end
    
-  def  show
+  def show
     @user = User.find(params[:id])
+    @microposts = @user.microposts.paginate(:page => params[:page])
     @title = @user.name
   end
   
@@ -56,7 +57,6 @@ class UsersController < ApplicationController
   end
   
   def destroy
-    puts "Current user id: #{current_user.id} and parameter id #{params[:id]}"
     if params[:id] == current_user.id && current_user.admin?   
         flash[:notice] = "You can not destroy yourself."
         redirect_to users_path
@@ -68,10 +68,6 @@ class UsersController < ApplicationController
   
   
   private
-  
-    def authenticate
-      deny_access unless signed_in?
-    end
     
     def correct_user
       @user = User.find(params[:id])
