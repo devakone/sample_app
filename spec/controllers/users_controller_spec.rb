@@ -40,6 +40,32 @@ describe UsersController do
       response.should have_selector("span.content", :content => mp1.content)
       response.should have_selector("span.content", :content => mp2.content)
     end
+    
+     it "should show a delete link for the user's microposts" do
+      test_sign_in(@user)
+      mp1 = Factory(:micropost, :user => @user, :content => "Foo bar")
+      mp2 = Factory(:micropost, :user => @user, :content => "Baz quux")
+      get :show, :id => @user
+      response.should have_selector("a", :href => "/microposts/#{mp1.id}",
+                                            :content => "delete")
+      response.should have_selector("a", :href => "/microposts/#{mp2.id}",
+                                            :content => "delete")
+     end
+     
+      it "should not a show delete link for a different user's microposts" do
+      
+      @different_user = Factory(:user, :name => "Bob", :email => "another@example.com")
+      test_sign_in(@different_user)
+      
+      mp1 = Factory(:micropost, :user => @user, :content => "Foo bar")
+      mp2 = Factory(:micropost, :user => @user, :content => "Baz quux")
+      get :show, :id => @user
+       response.should_not have_selector("a", :href => "/microposts/#{mp1.id}", :content => "delete")
+      response.should_not have_selector("a", :href => "/microposts/#{mp2.id}",  :content => "delete")
+        
+
+
+    end
 
       
   end

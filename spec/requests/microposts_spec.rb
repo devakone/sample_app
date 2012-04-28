@@ -34,5 +34,29 @@ describe "Microposts" do
       end
     end
   end
+  
+  describe "sidebar microposts count with proper pluralization" do
+
+   
+    it "should have 1 micropost and not be pluralized" do
+      visit root_path
+      content = "Lorem ipsum dolor sit amet"
+      fill_in :micropost_content, :with => content
+      click_button
+      response.should have_selector("span.microposts", :content => "1 micropost") 
+    end
+
+    it "should have 2 microposts and be pluralized" do
+     
+      visit root_path
+      content = "Lorem ipsum dolor sit amet"
+      fill_in :micropost_content, :with => content
+      click_button
+      fill_in :micropost_content, :with => content + "2"
+      click_button
+      response.should have_selector("span.microposts", :content => "2 microposts") 
+    end
+    
+  end
  
 end

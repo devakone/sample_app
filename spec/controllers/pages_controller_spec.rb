@@ -19,6 +19,23 @@
         response.should have_selector("title",
                                       :content => @base_title + " | Home")
       end
+    
+      it "should have paginated microposts" do
+        @user = test_sign_in(Factory(:user))
+        50.times do
+        Factory(:micropost,  :user => @user)
+        end
+        
+        get 'home'
+        response.should have_selector("div.pagination")
+        response.should have_selector("span.disabled", :content => "Previous")
+        response.should have_selector("a", :href => "/?page=2",
+                                            :content => "2")
+        response.should have_selector("a", :href => "/?page=2",
+                                            :content => "Next")
+
+      end
+      
     end
   
     describe "GET 'contact'" do
